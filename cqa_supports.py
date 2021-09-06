@@ -413,7 +413,8 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
                     history_answer_marker=marker,
                     metadata=metadata))
             unique_id += 1
-
+    
+    
     return features
 
 
@@ -854,10 +855,11 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
         example_features_num = []
         variations = convert_examples_to_example_variations([example], max_considered_history_turns)
         for variation_index, variation in enumerate(variations):
+            print(len([variation]))
             features = convert_examples_to_features([variation], tokenizer, max_seq_length, doc_stride, max_query_length, is_training)
             # matching_signals = extract_matching_signals(variation, glove, tfidf_vectorizer)
             # matching_signals_dict[(example_index, variation_index)] = matching_signals
-            
+            print(len(features))
             # the example_index and unique_id in features are wrong due to the generation of example variations.
             # we fix them here.
             for i in range(len(features)):
