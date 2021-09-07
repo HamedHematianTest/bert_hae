@@ -32,6 +32,13 @@ flags.DEFINE_string(
     "output_dir", "/bert_out/",
     "The output directory where the model checkpoints will be written.")
 
+flags.DEFINE_string(
+    "features_num", ,
+    "number of all features")
+
+flags.DEFINE_string(
+    "file_number", 5, "number of files to save features to")
+
 flags.DEFINE_string("quac_train_file", "train_v0.2.json",
                     "QuAC json for training.")
 
