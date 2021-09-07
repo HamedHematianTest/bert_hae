@@ -840,7 +840,11 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
     variation_tracker = []
     # matching_signals_dict = {}
     unique_id = 1000000000
-    
+    num_files = 5
+    features_num = 100000
+    each_file_features = int(features_num // num_files)
+    counter = 0
+    current_file = 1
     
     # when training, we shuffle the data for more stable training.
     # we shuffle here so that we do not need to shuffle when generating batches
@@ -867,19 +871,46 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
                 features[i].example_index = example_index
                 features[i].unique_id = unique_id
                 unique_id += 1
-#             all_features.extend(features)
-#             variation_tracker.extend([variation_index] * len(features))
-#             example_tracker.extend([example_index] * len(features))
-#             example_features_num.append(len(features))
+                counter += 1
+            all_features.extend(features)
+            variation_tracker.extend([variation_index] * len(features))
+            example_tracker.extend([example_index] * len(features))
+            example_features_num.append(len(features))
         # every variation of the same example should generate the same amount of features
-        assert len(set(example_features_num)) == 1
         example_features_nums.append(example_features_num[0])
-    print('############################################################################')
-    print(unique_id)
-    print('############################################################################')
-    assert len(all_features) == len(example_tracker)
-    assert len(all_features) == len(variation_tracker)
-    return all_features, example_tracker, variation_tracker, example_features_nums
+        if counter > each_file_features:
+            counter = 0
+            with open('/data/all_features_{}'.format(current_file),'wb') as file_:
+                pk.dump(all_features, file_)
+            with open('/data/example_tracker_{}'.format(current_file),'wb') as file_:
+                pk.dump(example_tracker, file_)
+            with open('/data/variation_tracker_{}'.format(current_file),'wb') as file_:
+                pk.dump(variation_tracker, file_)
+            with open('/data/example_features_nums_{}'.format(current_file),'wb') as file_:
+                pk.dump(example_features_nums, file_)
+                
+            all_features = []
+            example_tracker = []
+            variation_tracker = []
+            example_features_nums = []
+            current_file += 1
+            continue
+        
+        if example_index == len(examples_shuffled) - 1:
+            with open('/data/all_features_{}'.format(current_file),'wb') as file_:
+                pk.dump(all_features, file_)
+            with open('/data/example_tracker_{}'.format(current_file),'wb') as file_:
+                pk.dump(example_tracker, file_)
+            with open('/data/variation_tracker_{}'.format(current_file),'wb') as file_:
+                pk.dump(variation_tracker, file_)
+            with open('/data/example_features_nums_{}'.format(current_file),'wb') as file_:
+                pk.dump(example_features_nums, file_)
+                
+            all_features = []
+            example_tracker = []
+            variation_tracker = []
+            example_features_nums = []
+            all_features = []
 
 
 
