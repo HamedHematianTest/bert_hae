@@ -151,7 +151,7 @@ flags.DEFINE_bool(
 flags.DEFINE_string("dataset", 'quac', 'dataset name')
 
 flags.DEFINE_string(
-    "cache_dir", "/mnt/scratch/chenqu/bert_out/cache/",
+    "cache_dir", "cache/",
     "we store generated features here, so that we do not need to generate them every time")
 
 flags.DEFINE_integer(
