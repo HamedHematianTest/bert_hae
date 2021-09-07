@@ -12,6 +12,7 @@ import tokenization
 import six
 import tensorflow as tf
 from copy import deepcopy
+import pickle as pk
 
 from cqa_flags import FLAGS
 from cqa_supports import *
@@ -866,13 +867,16 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
                 features[i].example_index = example_index
                 features[i].unique_id = unique_id
                 unique_id += 1
-            all_features.extend(features)
-            variation_tracker.extend([variation_index] * len(features))
-            example_tracker.extend([example_index] * len(features))
-            example_features_num.append(len(features))
+#             all_features.extend(features)
+#             variation_tracker.extend([variation_index] * len(features))
+#             example_tracker.extend([example_index] * len(features))
+#             example_features_num.append(len(features))
         # every variation of the same example should generate the same amount of features
         assert len(set(example_features_num)) == 1
-        example_features_nums.append(example_features_num[0]) 
+        example_features_nums.append(example_features_num[0])
+    print('############################################################################')
+    print(unique_id)
+    print('############################################################################')
     assert len(all_features) == len(example_tracker)
     assert len(all_features) == len(variation_tracker)
     return all_features, example_tracker, variation_tracker, example_features_nums
