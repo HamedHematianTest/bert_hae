@@ -841,7 +841,7 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
     # matching_signals_dict = {}
     unique_id = 1000000000
     num_files = 5
-    features_num = 100000
+    features_num = 510320
     each_file_features = int(features_num // num_files)
     counter = 0
     current_file = 1
