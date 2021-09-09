@@ -36,7 +36,7 @@ from copy import deepcopy
 import pickle
 import itertools
 from time import time
-from rqdm import tqdm
+from tqdm import tqdm
 
 from cqa_supports import *
 from cqa_flags import FLAGS
