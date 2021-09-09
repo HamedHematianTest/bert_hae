@@ -13,6 +13,7 @@ import six
 import tensorflow as tf
 from copy import deepcopy
 import pickle as pk
+from tqdm import tqdm
 
 from cqa_flags import FLAGS
 from cqa_supports import *
@@ -856,7 +857,7 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
     else:
         examples_shuffled = np.asarray(examples)
     
-    for example_index, example in enumerate(examples_shuffled):
+    for example_index, example in enumerate(tqdm(examples_shuffled)):
         example_features_num = []
         variations = convert_examples_to_example_variations([example], max_considered_history_turns)
         for variation_index, variation in enumerate(variations):
