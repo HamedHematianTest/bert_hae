@@ -102,14 +102,7 @@ if FLAGS.do_train:
                                         max_query_length=FLAGS.max_query_length, 
                                         max_considered_history_turns=FLAGS.max_considered_history_turns, 
                                         is_training=True)
-        with open(features_fname, 'wb') as handle:
-            pickle.dump(train_features, handle)
-        with open(example_tracker_fname, 'wb') as handle:
-            pickle.dump(example_tracker, handle)
-        with open(variation_tracker_fname, 'wb') as handle:
-            pickle.dump(variation_tracker, handle)     
-        with open(example_features_nums_fname, 'wb') as handle:
-            pickle.dump(example_features_nums, handle) 
+        
         print('train features generated')
                 
     
@@ -247,13 +240,13 @@ with tf.Session() as sess:
         current_file = 1
         num_files = 10
         while current_file <= num_files:
-            with open('/data/all_features_{}'.format(current_file),'rb') as file_:
+            with open('data/all_features_{}'.format(current_file),'rb') as file_:
                 train_features = pickle.load(file_)
-            with open('/data/example_tracker_{}'.format(current_file),'rb') as file_:
+            with open('data/example_tracker_{}'.format(current_file),'rb') as file_:
                 example_tracker = pickle.dump(file_)
-            with open('/data/variation_tracker_{}'.format(current_file),'rb') as file_:
+            with open('data/variation_tracker_{}'.format(current_file),'rb') as file_:
                 variation_tracker = pickle.dump(file_)
-            with open('/data/example_features_nums_{}'.format(current_file),'rb') as file_:
+            with open('data/example_features_nums_{}'.format(current_file),'rb') as file_:
                 example_features_nums = pickle.load(file_)
 
             train_batches = cqa_gen_example_aware_batches(train_features, example_tracker, variation_tracker, 
