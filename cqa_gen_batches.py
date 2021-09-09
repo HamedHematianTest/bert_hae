@@ -120,24 +120,4 @@ def cqa_gen_example_aware_batches(features, example_tracker, variation_tracker, 
     
     
     
-#     for _ in range(int(num_epoches)):
-#         start_example_index = 0
-#         end_example_index = start_example_index + example_batch_size # this is actually the first example index in the next batch
-        
-#         while start_example_index in example_tracker:
-#             start_index = example_tracker.index(start_example_index)
-#             try:
-#                 end_index = example_tracker.index(end_example_index)
-#             except:
-#                 end_index = None
-#             batch_features = features[start_index: end_index]
-#             batch_example_tracker = example_tracker[start_index: end_index]
-#             batch_variation_tracker = variation_tracker[start_index: end_index]
-            
-#             start_example_index += example_batch_size
-#             end_example_index += example_batch_size
-            
-#             yield batch_features, batch_example_tracker, batch_variation_tracker
-            
-#         print('epoch finished!')
             
