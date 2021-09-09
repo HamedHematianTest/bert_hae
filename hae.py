@@ -212,11 +212,11 @@ tf.summary.scalar('total_loss', total_loss)
 if FLAGS.do_train:
     train_op = optimization.create_optimizer(total_loss, FLAGS.learning_rate, num_train_steps, num_warmup_steps, False)
 
-    print("***** Running training *****")
-    print("  Num orig examples = %d", len(train_examples))
-    print("  Num train_features = %d", len(train_features))
-    print("  Batch size = %d", FLAGS.train_batch_size)
-    print("  Num steps = %d", num_train_steps)
+#     print("***** Running training *****")
+#     print("  Num orig examples = %d", len(train_examples))
+#     print("  Num train_features = %d", len(train_features))
+#     print("  Batch size = %d", FLAGS.train_batch_size)
+#     print("  Num steps = %d", num_train_steps)
     
 merged_summary_op = tf.summary.merge_all()
 
@@ -243,9 +243,9 @@ with tf.Session() as sess:
             with open('data/all_features_{}'.format(current_file),'rb') as file_:
                 train_features = pickle.load(file_)
             with open('data/example_tracker_{}'.format(current_file),'rb') as file_:
-                example_tracker = pickle.dump(file_)
+                example_tracker = pickle.load(file_)
             with open('data/variation_tracker_{}'.format(current_file),'rb') as file_:
-                variation_tracker = pickle.dump(file_)
+                variation_tracker = pickle.load(file_)
             with open('data/example_features_nums_{}'.format(current_file),'rb') as file_:
                 example_features_nums = pickle.load(file_)
 
@@ -274,7 +274,8 @@ with tf.Session() as sess:
                                                start_positions: fd['start_positions'], end_positions: fd['end_positions'], 
                                                history_answer_marker: fd['history_answer_marker'], training: True})
                 except:
-                    print('features length: ', len(selected_example_features))
+                    pass
+#                     print('features length: ', len(selected_example_features))
 
                 train_summary_writer.add_summary(train_summary, step)
                 train_summary_writer.flush()
