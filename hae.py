@@ -43,7 +43,8 @@ from cqa_model import *
 from cqa_gen_batches import *
 
 from scorer import external_call # quac official evaluation script
-
+CURRENT_EPOCH = 0
+EPOCHS = 2
 
 # In[4]:
 
@@ -95,25 +96,13 @@ if FLAGS.do_train:
             example_features_nums = pickle.load(handle)
     except:
         print('train feature cache does not exist, generating')
-        train_features, example_tracker, variation_tracker,                                 example_features_nums = convert_examples_to_variations_and_then_features(
+        convert_examples_to_variations_and_then_features(
                                         examples=train_examples, tokenizer=tokenizer, 
                                         max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
                                         max_query_length=FLAGS.max_query_length, 
                                         max_considered_history_turns=FLAGS.max_considered_history_turns, 
                                         is_training=True)
-        with open(features_fname, 'wb') as handle:
-            pickle.dump(train_features, handle)
-        with open(example_tracker_fname, 'wb') as handle:
-            pickle.dump(example_tracker, handle)
-        with open(variation_tracker_fname, 'wb') as handle:
-            pickle.dump(variation_tracker, handle)     
-        with open(example_features_nums_fname, 'wb') as handle:
-            pickle.dump(example_features_nums, handle) 
-        print('train features generated')
                 
-    train_batches = cqa_gen_example_aware_batches(train_features, example_tracker, variation_tracker, 
-                                                  example_features_nums, FLAGS.train_batch_size, 
-                                                  FLAGS.num_train_epochs, shuffle=False)
     
     num_train_steps = FLAGS.train_steps
     num_warmup_steps = int(num_train_steps * FLAGS.warmup_proportion)
@@ -247,11 +236,14 @@ with tf.Session() as sess:
         dheq_list = []
         
         # Training cycle
-        for step, batch in enumerate(train_batches):
+        step = 0
+        while True:
+            step += 1
             if step > num_train_steps:
                 # this means the learning rate has been decayed to 0
                 break
-                
+            
+            train_batches = cqa_gen_example_aware_batches(FLAGS.train_batch_size, shuffle=False)
             batch_features, batch_example_tracker, batch_variation_tracker = batch
             
 
