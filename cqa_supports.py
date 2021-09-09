@@ -879,13 +879,13 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
         example_features_nums.append(example_features_num[0])
         if counter > each_file_features:
             counter = 0
-            with open('/data/all_features_{}'.format(current_file),'wb') as file_:
+            with open('data/all_features_{}'.format(current_file),'wb') as file_:
                 pk.dump(all_features, file_)
-            with open('/data/example_tracker_{}'.format(current_file),'wb') as file_:
+            with open('data/example_tracker_{}'.format(current_file),'wb') as file_:
                 pk.dump(example_tracker, file_)
-            with open('/data/variation_tracker_{}'.format(current_file),'wb') as file_:
+            with open('data/variation_tracker_{}'.format(current_file),'wb') as file_:
                 pk.dump(variation_tracker, file_)
-            with open('/data/example_features_nums_{}'.format(current_file),'wb') as file_:
+            with open('data/example_features_nums_{}'.format(current_file),'wb') as file_:
                 pk.dump(example_features_nums, file_)
                 
             all_features = []
@@ -896,13 +896,13 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
             continue
         
         if example_index == len(examples_shuffled) - 1:
-            with open('/data/all_features_{}'.format(current_file),'wb') as file_:
+            with open('data/all_features_{}'.format(current_file),'wb') as file_:
                 pk.dump(all_features, file_)
-            with open('/data/example_tracker_{}'.format(current_file),'wb') as file_:
+            with open('data/example_tracker_{}'.format(current_file),'wb') as file_:
                 pk.dump(example_tracker, file_)
-            with open('/data/variation_tracker_{}'.format(current_file),'wb') as file_:
+            with open('data/variation_tracker_{}'.format(current_file),'wb') as file_:
                 pk.dump(variation_tracker, file_)
-            with open('/data/example_features_nums_{}'.format(current_file),'wb') as file_:
+            with open('data/example_features_nums_{}'.format(current_file),'wb') as file_:
                 pk.dump(example_features_nums, file_)
                 
             all_features = []
