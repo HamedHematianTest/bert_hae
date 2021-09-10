@@ -841,9 +841,16 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
     variation_tracker = []
     # matching_signals_dict = {}
     unique_id = 1000000000
-    num_files = 10
-    features_num = 510320
-    each_file_features = int(features_num // num_files)
+    num_files_train = 10
+    num_files_val = 10
+    features_num_train = 510320
+    features_num_val = 81518
+    each_file_features_train = int(features_num_train // num_files_train)
+    each_file_features_val = int(features_num_val // num_files_val)
+    if dir_ == 'train':
+        each_file_features = each_file_features_train
+    elif dir_ == 'val':
+        each_file_features = each_file_features_val
     counter = 0
     current_file = 1
     
@@ -879,6 +886,7 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
         example_features_nums.append(example_features_num[0])
         
         if counter > each_file_features:
+            
             counter = 0
             with open('data/{}/all_features_{}'.format(dir_, current_file),'wb') as file_:
                 pk.dump(all_features, file_)
