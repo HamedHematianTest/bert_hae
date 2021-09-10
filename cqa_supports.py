@@ -830,7 +830,7 @@ def convert_examples_to_example_variations(examples, max_considered_history_turn
     return new_examples
 
 def convert_examples_to_variations_and_then_features(examples, tokenizer, max_seq_length, 
-                                doc_stride, max_query_length, max_considered_history_turns, is_training):
+                                doc_stride, max_query_length, max_considered_history_turns, is_training, dir_):
     # different from the "convert_examples_to_features" in cqa_supports.py, we return two masks with the feature (example/variaton trackers).
     # the first mask is the example index, and the second mask is the variation index. Wo do this to keep track of the features generated
     # by different examples and variations.
@@ -877,15 +877,16 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
             example_features_num.append(len(features))
         # every variation of the same example should generate the same amount of features
         example_features_nums.append(example_features_num[0])
+        
         if counter > each_file_features:
             counter = 0
-            with open('data/all_features_{}'.format(current_file),'wb') as file_:
+            with open('data/{}/all_features_{}'.format(dir_, current_file),'wb') as file_:
                 pk.dump(all_features, file_)
-            with open('data/example_tracker_{}'.format(current_file),'wb') as file_:
+            with open('data/{}/example_tracker_{}'.format(dir_, current_file),'wb') as file_:
                 pk.dump(example_tracker, file_)
-            with open('data/variation_tracker_{}'.format(current_file),'wb') as file_:
+            with open('data/{}/variation_tracker_{}'.format(dir_, current_file),'wb') as file_:
                 pk.dump(variation_tracker, file_)
-            with open('data/example_features_nums_{}'.format(current_file),'wb') as file_:
+            with open('data/{}/example_features_nums_{}'.format(dir_, current_file),'wb') as file_:
                 pk.dump(example_features_nums, file_)
                 
             all_features = []
@@ -896,13 +897,13 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
             continue
         
         if example_index == len(examples_shuffled) - 1:
-            with open('data/all_features_{}'.format(current_file),'wb') as file_:
+            with open('data/{}/all_features_{}'.format(dir_, current_file),'wb') as file_:
                 pk.dump(all_features, file_)
-            with open('data/example_tracker_{}'.format(current_file),'wb') as file_:
+            with open('data/{}/example_tracker_{}'.format(dir_, current_file),'wb') as file_:
                 pk.dump(example_tracker, file_)
-            with open('data/variation_tracker_{}'.format(current_file),'wb') as file_:
+            with open('data/{}/variation_tracker_{}'.format(dir_, current_file),'wb') as file_:
                 pk.dump(variation_tracker, file_)
-            with open('data/example_features_nums_{}'.format(current_file),'wb') as file_:
+            with open('data/{}/example_features_nums_{}'.format(dir_, current_file),'wb') as file_:
                 pk.dump(example_features_nums, file_)
                 
             all_features = []
