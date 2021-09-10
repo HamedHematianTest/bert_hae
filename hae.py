@@ -227,23 +227,23 @@ with tf.Session() as sess:
         heq_list = []
         dheq_list = []
         
-        current_file = 1
-        num_files = 10
-        while current_file <= num_files:
-            with open('data/train/all_features_{}'.format(current_file),'rb') as file_:
+        current_file_train = 1
+        num_files_train = 30
+        while current_file_train <= num_files_train:
+            with open('data/train/all_features_{}'.format(current_file_train),'rb') as file_:
                 train_features = pickle.load(file_)
-            with open('data/train/example_tracker_{}'.format(current_file),'rb') as file_:
+            with open('data/train/example_tracker_{}'.format(current_file_train),'rb') as file_:
                 example_tracker = pickle.load(file_)
-            with open('data/train/variation_tracker_{}'.format(current_file),'rb') as file_:
+            with open('data/train/variation_tracker_{}'.format(current_file_train),'rb') as file_:
                 variation_tracker = pickle.load(file_)
-            with open('data/train/example_features_nums_{}'.format(current_file),'rb') as file_:
+            with open('data/train/example_features_nums_{}'.format(current_file_train),'rb') as file_:
                 example_features_nums = pickle.load(file_)
 
             train_batches = cqa_gen_example_aware_batches(train_features, example_tracker, variation_tracker, 
                                           example_features_nums, FLAGS.train_batch_size, 
                                           FLAGS.num_train_epochs, shuffle=False)
             
-            current_file += 1
+            current_file_train += 1
             # Training cycle
             for step, batch in enumerate(train_batches):
                 if step > num_train_steps:
@@ -282,22 +282,22 @@ with tf.Session() as sess:
                     total_num_actions = 0
                     total_num_examples = 0
 
-                    current_file = 1
-                    num_files = 10
-                    while current_file <= num_files:
-                        with open('data/val/all_features_{}'.format(current_file),'rb') as file_:
+                    current_file_val = 1
+                    num_files_val = 10
+                    while current_file <= num_files_val:
+                        with open('data/val/all_features_{}'.format(current_file_val),'rb') as file_:
                             train_features = pickle.load(file_)
-                        with open('data/val/example_tracker_{}'.format(current_file),'rb') as file_:
+                        with open('data/val/example_tracker_{}'.format(current_file_val),'rb') as file_:
                             example_tracker = pickle.load(file_)
-                        with open('data/val/variation_tracker_{}'.format(current_file),'rb') as file_:
+                        with open('data/val/variation_tracker_{}'.format(current_file_val),'rb') as file_:
                             variation_tracker = pickle.load(file_)
-                        with open('data/val/example_features_nums_{}'.format(current_file),'rb') as file_:
+                        with open('data/val/example_features_nums_{}'.format(current_file_val),'rb') as file_:
                             example_features_nums = pickle.load(file_)
                             
                         val_batches = cqa_gen_example_aware_batches(val_features, val_example_tracker, val_variation_tracker, 
                            val_example_features_nums, FLAGS.predict_batch_size, 1, shuffle=False)
                         
-                        current_file += 1
+                        current_file_val += 1
                     
                         for val_batch in val_batches:
                             batch_results = []
