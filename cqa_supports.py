@@ -841,7 +841,7 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
     variation_tracker = []
     # matching_signals_dict = {}
     unique_id = 1000000000
-    num_files_train = 10
+    num_files_train = 30
     num_files_val = 10
     features_num_train = 510320
     features_num_val = 81518
