@@ -29,7 +29,7 @@ flags.DEFINE_string("vocab_file", "vocab.txt",
                     "The vocabulary file that the BERT model was trained on.")
 
 flags.DEFINE_string(
-    "output_dir", "/bert_out/",
+    "output_dir", "bert_out/",
     "The output directory where the model checkpoints will be written.")
 
 
