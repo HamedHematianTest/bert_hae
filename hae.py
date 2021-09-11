@@ -284,7 +284,7 @@ with tf.Session() as sess:
 
                     current_file_val = 1
                     num_files_val = 20
-                    while current_file <= num_files_val:
+                    while current_file_val <= num_files_val:
                         with open('data/val/all_features_{}'.format(current_file_val),'rb') as file_:
                             train_features = pickle.load(file_)
                         with open('data/val/example_tracker_{}'.format(current_file_val),'rb') as file_:
