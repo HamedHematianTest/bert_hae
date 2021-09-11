@@ -283,7 +283,7 @@ with tf.Session() as sess:
                     total_num_examples = 0
 
                     current_file_val = 1
-                    num_files_val = 20
+                    num_files_val = 2
                     while current_file_val <= num_files_val:
                         with open('data/val/all_features_{}'.format(current_file_val),'rb') as file_:
                             val_features = pickle.load(file_)
@@ -376,7 +376,7 @@ with tf.Session() as sess:
                         save_path = saver.save(sess, '{}/model_{}.ckpt'.format(FLAGS.output_dir, step))
                         print('Model saved in path', save_path)
 
-                
+                batch_features, batch_example_tracker, batch_variation_tracker, val_batches = None, None, None, None
 
 
 # In[5]:
