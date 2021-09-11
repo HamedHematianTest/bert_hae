@@ -286,13 +286,13 @@ with tf.Session() as sess:
                     num_files_val = 20
                     while current_file_val <= num_files_val:
                         with open('data/val/all_features_{}'.format(current_file_val),'rb') as file_:
-                            train_features = pickle.load(file_)
+                            val_features = pickle.load(file_)
                         with open('data/val/example_tracker_{}'.format(current_file_val),'rb') as file_:
-                            example_tracker = pickle.load(file_)
+                            val_example_tracker = pickle.load(file_)
                         with open('data/val/variation_tracker_{}'.format(current_file_val),'rb') as file_:
-                            variation_tracker = pickle.load(file_)
+                            val_variation_tracker = pickle.load(file_)
                         with open('data/val/example_features_nums_{}'.format(current_file_val),'rb') as file_:
-                            example_features_nums = pickle.load(file_)
+                            val_example_features_nums = pickle.load(file_)
                             
                         val_batches = cqa_gen_example_aware_batches(val_features, val_example_tracker, val_variation_tracker, 
                            val_example_features_nums, FLAGS.predict_batch_size, 1, shuffle=False)
