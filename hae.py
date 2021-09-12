@@ -228,7 +228,7 @@ with tf.Session() as sess:
         dheq_list = []
         
         current_file_train = 1
-        num_files_train = 60
+        num_files_train = 200
         while current_file_train <= num_files_train:
             with open('data/train/all_features_{}'.format(current_file_train),'rb') as file_:
                 train_features = pickle.load(file_)
@@ -376,7 +376,7 @@ with tf.Session() as sess:
                     save_path = saver.save(sess, '{}/model_{}.ckpt'.format(FLAGS.output_dir, step))
                     print('Model saved in path', save_path)
 
-                batch_features, batch_example_tracker, batch_variation_tracker, val_batches = None, None, None, None
+                all_results, all_selected_examples, all_selected_features, batch_features, batch_example_tracker, batch_variation_tracker, val_batches, val_features, val_example_tracker, val_variation_tracker, val_example_features_nums = None, None, None, None, None, None, None, None, None, None, None, None
 
 
 # In[5]:
