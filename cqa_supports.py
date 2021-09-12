@@ -842,7 +842,7 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
     # matching_signals_dict = {}
     unique_id = 1000000000
     num_files_train = 200
-    num_files_val = 40
+    num_files_val = 100
     features_num_train = 510320
     features_num_val = 81518
     each_file_features_train = int(features_num_train // num_files_train)
