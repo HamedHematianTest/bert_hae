@@ -271,7 +271,7 @@ with tf.Session() as sess:
                 train_summary_writer.flush()
                 print('training step: {}, total_loss: {}'.format(step, total_loss_res))
 
-                if step >= FLAGS.evaluate_after and step % FLAGS.evaluation_steps == 0 and step != 0:
+                if (step + 1) % 5 == 0:
                     print('################## prediction time ################## ')
                     val_total_loss = []
                     all_results = []
