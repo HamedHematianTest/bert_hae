@@ -864,6 +864,7 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
     else:
         examples_shuffled = np.asarray(examples)
     
+    example_index_ = 0
     for example_index, example in enumerate(tqdm(examples_shuffled)):
         example_features_num = []
         variations = convert_examples_to_example_variations([example], max_considered_history_turns)
@@ -880,11 +881,12 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
                 counter += 1
             all_features.extend(features)
             variation_tracker.extend([variation_index] * len(features))
-            example_tracker.extend([example_index] * len(features))
+            example_tracker.extend([example_index_] * len(features))
             example_features_num.append(len(features))
+            
         # every variation of the same example should generate the same amount of features
         example_features_nums.append(example_features_num[0])
-        
+        example_index_ += 1
         if counter > each_file_features:
             
             counter = 0
@@ -902,6 +904,7 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
             variation_tracker = []
             example_features_nums = []
             current_file += 1
+            example_index_ = 0
             continue
         
         if example_index == len(examples_shuffled) - 1:
@@ -919,6 +922,7 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
             variation_tracker = []
             example_features_nums = []
             all_features = []
+            example_index_ = 0
 
 
 
