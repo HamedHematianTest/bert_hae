@@ -875,7 +875,7 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
             # the example_index and unique_id in features are wrong due to the generation of example variations.
             # we fix them here.
             for i in range(len(features)):
-                features[i].example_index = example_index
+                features[i].example_index = example_index_
                 features[i].unique_id = unique_id
                 unique_id += 1
                 counter += 1
