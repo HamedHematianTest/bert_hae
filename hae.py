@@ -96,13 +96,13 @@ if FLAGS.do_train:
             example_features_nums = pickle.load(handle)
     except:
         print('train feature cache does not exist, generating')
-        convert_examples_to_variations_and_then_features(
-                                        examples=train_examples, tokenizer=tokenizer, 
-                                        max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
-                                        max_query_length=FLAGS.max_query_length, 
-                                        max_considered_history_turns=FLAGS.max_considered_history_turns, 
-                                        is_training=True,
-                                        dir_='train')
+        # convert_examples_to_variations_and_then_features(
+        #                                 examples=train_examples, tokenizer=tokenizer, 
+        #                                 max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
+        #                                 max_query_length=FLAGS.max_query_length, 
+        #                                 max_considered_history_turns=FLAGS.max_considered_history_turns, 
+        #                                 is_training=True,
+        #                                 dir_='train')
         
         print('train features generated')
                 
@@ -136,13 +136,13 @@ if FLAGS.do_predict:
             val_example_features_nums = pickle.load(handle)
     except:
         print('val feature cache does not exist, generating')
-        convert_examples_to_variations_and_then_features(
-                                                   examples=val_examples, tokenizer=tokenizer, 
-                                                   max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
-                                                   max_query_length=FLAGS.max_query_length, 
-                                                   max_considered_history_turns=FLAGS.max_considered_history_turns, 
-                                                   is_training=False,
-                                                   dir_='val')
+        # convert_examples_to_variations_and_then_features(
+        #                                            examples=val_examples, tokenizer=tokenizer, 
+        #                                            max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
+        #                                            max_query_length=FLAGS.max_query_length, 
+        #                                            max_considered_history_turns=FLAGS.max_considered_history_turns, 
+        #                                            is_training=False,
+        #                                            dir_='val')
 
         print('val features generated')
     
@@ -226,10 +226,12 @@ with tf.Session() as sess:
         f1_list = []
         heq_list = []
         dheq_list = []
-        
+        global_step = 1
+
         current_file_train = 1
-        num_files_train = 200
+        num_files_train = 500
         while current_file_train <= num_files_train:
+            print(f'#################### file {current_file_train} loaded ####################')
             with open('data/train/all_features_{}'.format(current_file_train),'rb') as file_:
                 train_features = pickle.load(file_)
             with open('data/train/example_tracker_{}'.format(current_file_train),'rb') as file_:
@@ -244,19 +246,27 @@ with tf.Session() as sess:
                                           FLAGS.num_train_epochs, shuffle=False)
             
             current_file_train += 1
+            train_features = None
+            example_tracker = None
+            variation_tracker = None
+            example_features_nums = None
             # Training cycle
             for step, batch in enumerate(train_batches):
-                if step > num_train_steps:
+                if global_step > num_train_steps:
                     # this means the learning rate has been decayed to 0
+                    print('break')
                     break
 
                 batch_features, batch_example_tracker, batch_variation_tracker = batch
-
+                batch = None
 
                 selected_example_features, relative_selected_pos = get_selected_example_features_without_actions(
                                                         batch_features, batch_example_tracker, batch_variation_tracker)
+                
+                batch_features, batch_example_tracker, batch_variation_tracker = None, None, None
 
                 fd = convert_features_to_feed_dict(selected_example_features) # feed_dict
+                selected_example_features, relative_selected_pos = None, None
                 try:
                     _, train_summary, total_loss_res = sess.run([train_op, merged_summary_op, total_loss], 
                                                feed_dict={unique_ids: fd['unique_ids'], input_ids: fd['input_ids'], 
@@ -264,14 +274,14 @@ with tf.Session() as sess:
                                                start_positions: fd['start_positions'], end_positions: fd['end_positions'], 
                                                history_answer_marker: fd['history_answer_marker'], training: True})
                 except:
-                    pass
+                    print('could not')
 #                     print('features length: ', len(selected_example_features))
 
                 train_summary_writer.add_summary(train_summary, step)
                 train_summary_writer.flush()
-                print('training step: {}, total_loss: {}'.format(step, total_loss_res))
+                print('training step: {}, total_loss: {}'.format(global_step, total_loss_res))
 
-                if (step + 1) % 5 == 0:
+                if global_step % 10 == 0:
                     print('################## prediction time ################## ')
                     val_total_loss = []
                     all_results = []
@@ -283,8 +293,9 @@ with tf.Session() as sess:
                     total_num_examples = 0
 
                     current_file_val = 1
-                    num_files_val = 2
+                    num_files_val = 194
                     while current_file_val <= num_files_val:
+                        print(f'#################### file {current_file_val} loaded ####################')
                         with open('data/val/all_features_{}'.format(current_file_val),'rb') as file_:
                             val_features = pickle.load(file_)
                         with open('data/val/example_tracker_{}'.format(current_file_val),'rb') as file_:
@@ -362,22 +373,22 @@ with tf.Session() as sess:
 
                     print('evaluation: {}, total_loss: {}, f1: {}, followup: {}, yesno: {}, heq: {}, dheq: {}\n'.format(
                         step, val_total_loss_value, val_f1, val_followup, val_yesno, val_heq, val_dheq))
-                    with open(FLAGS.output_dir + 'step_result.txt', 'a') as fout:
-                            fout.write('{},{},{},{},{},{}\n'.format(step, val_f1, val_heq, val_dheq, 
-                                                FLAGS.history, FLAGS.output_dir))
+                    # with open(FLAGS.output_dir + 'step_result.txt', 'a') as fout:
+                    #         fout.write('{},{},{},{},{},{}\n'.format(step, val_f1, val_heq, val_dheq, 
+                    #                             FLAGS.history, FLAGS.output_dir))
 
-                    val_summary.value.add(tag="total_loss", simple_value=val_total_loss_value)
-                    val_summary.value.add(tag="f1", simple_value=val_f1)
-                    f1_list.append(val_f1)
+                    # val_summary.value.add(tag="total_loss", simple_value=val_total_loss_value)
+                    # val_summary.value.add(tag="f1", simple_value=val_f1)
+                    # f1_list.append(val_f1)
 
-                    val_summary_writer.add_summary(val_summary, step)
-                    val_summary_writer.flush()
+                    # val_summary_writer.add_summary(val_summary, step)
+                    # val_summary_writer.flush()
 
-                    save_path = saver.save(sess, '{}/model_{}.ckpt'.format(FLAGS.output_dir, step))
-                    print('Model saved in path', save_path)
+                    # save_path = saver.save(sess, '{}/model_{}.ckpt'.format(FLAGS.output_dir, step))
+                    # print('Model saved in path', save_path)
 
-                all_results, all_selected_examples, all_selected_features, batch_features, batch_example_tracker, batch_variation_tracker, val_batches, val_features, val_example_tracker, val_variation_tracker, val_example_features_nums = None, None, None, None, None, None, None, None, None, None, None, None
-
+                all_results, all_selected_examples, all_selected_features, batch_features, batch_example_tracker, batch_variation_tracker, val_batches, val_features, val_example_tracker, val_variation_tracker, val_example_features_nums = None, None, None, None, None, None, None, None, None, None, None
+                global_step += 1
 
 # In[5]:
 
