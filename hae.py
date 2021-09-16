@@ -211,15 +211,18 @@ if FLAGS.do_train:
 merged_summary_op = tf.summary.merge_all()
 
 RawResult = collections.namedtuple("RawResult", ["unique_id", "start_logits", "end_logits"])
-
+have_checkpoint = False
 saver = tf.train.Saver()
 # Initializing the variables
 init = tf.global_variables_initializer()
-tf.get_default_graph().finalize()
 saver_sess = tf.train.Saver()
+if not have_checkpoint:
+    tf.get_default_graph().finalize()
 every_step_val = 10
+
 with tf.Session() as sess:
-    sess.run(init)
+    if not have_checkpoint:
+        sess.run(init)
 
     if FLAGS.do_train:
         train_summary_writer = tf.summary.FileWriter(FLAGS.output_dir + 'summaries/train', sess.graph)
@@ -229,7 +232,9 @@ with tf.Session() as sess:
         heq_list = []
         dheq_list = []
         global_step = 1
-
+        if have_checkpoint == True:
+          saver = tf.train.import_meta_graph('model.ckpt-10.meta')
+          saver.restore(sess,tf.train.latest_checkpoint('./'))
         current_file_train = 1
         num_files_train = 500
         while current_file_train <= num_files_train:
