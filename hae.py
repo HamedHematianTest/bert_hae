@@ -96,13 +96,13 @@ if FLAGS.do_train:
             example_features_nums = pickle.load(handle)
     except:
         print('train feature cache does not exist, generating')
-        # convert_examples_to_variations_and_then_features(
-        #                                 examples=train_examples, tokenizer=tokenizer, 
-        #                                 max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
-        #                                 max_query_length=FLAGS.max_query_length, 
-        #                                 max_considered_history_turns=FLAGS.max_considered_history_turns, 
-        #                                 is_training=True,
-        #                                 dir_='train')
+        convert_examples_to_variations_and_then_features(
+                                        examples=train_examples, tokenizer=tokenizer, 
+                                        max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
+                                        max_query_length=FLAGS.max_query_length, 
+                                        max_considered_history_turns=FLAGS.max_considered_history_turns, 
+                                        is_training=True,
+                                        dir_='train')
         
         print('train features generated')
                 
@@ -136,13 +136,13 @@ if FLAGS.do_predict:
             val_example_features_nums = pickle.load(handle)
     except:
         print('val feature cache does not exist, generating')
-        # convert_examples_to_variations_and_then_features(
-        #                                            examples=val_examples, tokenizer=tokenizer, 
-        #                                            max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
-        #                                            max_query_length=FLAGS.max_query_length, 
-        #                                            max_considered_history_turns=FLAGS.max_considered_history_turns, 
-        #                                            is_training=False,
-        #                                            dir_='val')
+        convert_examples_to_variations_and_then_features(
+                                                   examples=val_examples, tokenizer=tokenizer, 
+                                                   max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
+                                                   max_query_length=FLAGS.max_query_length, 
+                                                   max_considered_history_turns=FLAGS.max_considered_history_turns, 
+                                                   is_training=False,
+                                                   dir_='val')
 
         print('val features generated')
     
@@ -281,7 +281,7 @@ with tf.Session() as sess:
                 train_summary_writer.flush()
                 print('training step: {}, total_loss: {}'.format(global_step, total_loss_res))
 
-                if global_step % 10 == 0:
+                if global_step % 10000 == 0:
                     print('################## prediction time ################## ')
                     val_total_loss = []
                     all_results = []
@@ -293,7 +293,7 @@ with tf.Session() as sess:
                     total_num_examples = 0
 
                     current_file_val = 1
-                    num_files_val = 194
+                    num_files_val = 180
                     while current_file_val <= num_files_val:
                         print(f'#################### file {current_file_val} loaded ####################')
                         with open('data/val/all_features_{}'.format(current_file_val),'rb') as file_:
