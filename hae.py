@@ -218,8 +218,8 @@ init = tf.global_variables_initializer()
 saver_sess = tf.train.Saver()
 if not have_checkpoint:
     tf.get_default_graph().finalize()
-every_step_val = 5000
-every_file_save = 30
+every_step_val = 10000
+every_file_save = 50
 
 with tf.Session() as sess:
     if not have_checkpoint:
