@@ -218,7 +218,8 @@ init = tf.global_variables_initializer()
 saver_sess = tf.train.Saver()
 if not have_checkpoint:
     tf.get_default_graph().finalize()
-every_step_val = 10
+every_step_val = 5000
+every_file_save = 30
 
 with tf.Session() as sess:
     if not have_checkpoint:
@@ -288,7 +289,7 @@ with tf.Session() as sess:
                 train_summary_writer.flush()
                 print('training step: {}, total_loss: {}'.format(global_step, total_loss_res))
                 
-                if global_step % every_step_val == 0:
+                if current_file_train % every_file_save == 0:
                     saver_sess.save(sess, "model.ckpt", global_step=global_step)
                 
                 if global_step % every_step_val == 0:
