@@ -216,6 +216,8 @@ saver = tf.train.Saver()
 # Initializing the variables
 init = tf.global_variables_initializer()
 tf.get_default_graph().finalize()
+saver_sess = tf.train.Saver()
+every_step_val = 10
 with tf.Session() as sess:
     sess.run(init)
 
@@ -280,8 +282,11 @@ with tf.Session() as sess:
                 train_summary_writer.add_summary(train_summary, step)
                 train_summary_writer.flush()
                 print('training step: {}, total_loss: {}'.format(global_step, total_loss_res))
-
-                if global_step % 10000 == 0:
+                
+                if global_step % every_step_val == 0:
+                    saver_sess.save(sess, "model.ckpt", global_step=global_step)
+                
+                if global_step % every_step_val == 0:
                     print('################## prediction time ################## ')
                     val_total_loss = []
                     all_results = []
