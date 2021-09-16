@@ -116,7 +116,6 @@ def cqa_gen_example_aware_batches(features, example_tracker, variation_tracker, 
             assert len(batch_features) > 0
             yield batch_features, batch_example_tracker, batch_variation_tracker
             
-        print('epoch finished!')
     
     
     
