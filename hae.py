@@ -219,7 +219,7 @@ saver_sess = tf.train.Saver()
 if not have_checkpoint:
     tf.get_default_graph().finalize()
 every_step_val = 10000
-every_file_save = 50
+every_file_save = 25
 
 with tf.Session() as sess:
     if not have_checkpoint:
@@ -288,9 +288,6 @@ with tf.Session() as sess:
                 train_summary_writer.add_summary(train_summary, step)
                 train_summary_writer.flush()
                 print('training step: {}, total_loss: {}'.format(global_step, total_loss_res))
-                
-                if current_file_train % every_file_save == 0:
-                    saver_sess.save(sess, "model.ckpt", global_step=global_step)
                 
                 if global_step % every_step_val == 0:
                     print('################## prediction time ################## ')
@@ -400,6 +397,9 @@ with tf.Session() as sess:
 
                 all_results, all_selected_examples, all_selected_features, batch_features, batch_example_tracker, batch_variation_tracker, val_batches, val_features, val_example_tracker, val_variation_tracker, val_example_features_nums = None, None, None, None, None, None, None, None, None, None, None
                 global_step += 1
+            
+            if current_file_train % every_file_save == 0:
+                saver_sess.save(sess, "model.ckpt", global_step=every_file_save)
 
 # In[5]:
 
