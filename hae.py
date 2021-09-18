@@ -399,7 +399,7 @@ with tf.Session() as sess:
                 global_step += 1
             
             if current_file_train % every_file_save == 0:
-                saver_sess.save(sess, "/content/gdrive/MyDrive/model_save/model.ckpt", global_step=every_file_save)
+                saver_sess.save(sess, "/content/gdrive/MyDrive/model_save/model.ckpt", global_step=current_file_train)
 
 # In[5]:
 
