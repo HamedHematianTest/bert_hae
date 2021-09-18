@@ -219,7 +219,7 @@ saver_sess = tf.train.Saver()
 if not have_checkpoint:
     tf.get_default_graph().finalize()
 every_step_val = 10000
-every_file_save = 20
+every_file_save = 10
 
 with tf.Session() as sess:
     if not have_checkpoint:
