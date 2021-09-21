@@ -96,13 +96,13 @@ if FLAGS.do_train:
             example_features_nums = pickle.load(handle)
     except:
         print('train feature cache does not exist, generating')
-        convert_examples_to_variations_and_then_features(
-                                        examples=train_examples, tokenizer=tokenizer, 
-                                        max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
-                                        max_query_length=FLAGS.max_query_length, 
-                                        max_considered_history_turns=FLAGS.max_considered_history_turns, 
-                                        is_training=True,
-                                        dir_='train')
+        # convert_examples_to_variations_and_then_features(
+        #                                 examples=train_examples, tokenizer=tokenizer, 
+        #                                 max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
+        #                                 max_query_length=FLAGS.max_query_length, 
+        #                                 max_considered_history_turns=FLAGS.max_considered_history_turns, 
+        #                                 is_training=True,
+        #                                 dir_='train')
         
         print('train features generated')
                 
@@ -136,13 +136,13 @@ if FLAGS.do_predict:
             val_example_features_nums = pickle.load(handle)
     except:
         print('val feature cache does not exist, generating')
-        convert_examples_to_variations_and_then_features(
-                                                   examples=val_examples, tokenizer=tokenizer, 
-                                                   max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
-                                                   max_query_length=FLAGS.max_query_length, 
-                                                   max_considered_history_turns=FLAGS.max_considered_history_turns, 
-                                                   is_training=False,
-                                                   dir_='val')
+        # convert_examples_to_variations_and_then_features(
+        #                                            examples=val_examples, tokenizer=tokenizer, 
+        #                                            max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
+        #                                            max_query_length=FLAGS.max_query_length, 
+        #                                            max_considered_history_turns=FLAGS.max_considered_history_turns, 
+        #                                            is_training=False,
+        #                                            dir_='val')
 
         print('val features generated')
     
@@ -211,15 +211,15 @@ if FLAGS.do_train:
 merged_summary_op = tf.summary.merge_all()
 
 RawResult = collections.namedtuple("RawResult", ["unique_id", "start_logits", "end_logits"])
-have_checkpoint = False
+have_checkpoint = True
 saver = tf.train.Saver()
 # Initializing the variables
 init = tf.global_variables_initializer()
-saver_sess = tf.train.Saver()
+saver_sess = tf.train.Saver(max_to_keep=1)
 if not have_checkpoint:
     tf.get_default_graph().finalize()
-every_step_val = 10000
-every_file_save = 10
+every_step_val = 7000
+every_file_save = 15
 
 with tf.Session() as sess:
     if not have_checkpoint:
@@ -234,9 +234,9 @@ with tf.Session() as sess:
         dheq_list = []
         global_step = 1
         if have_checkpoint == True:
-          saver = tf.train.import_meta_graph('model.ckpt-10.meta')
-          saver.restore(sess,tf.train.latest_checkpoint('./'))
-        current_file_train = 1
+          saver = tf.train.import_meta_graph('gdrive/MyDrive/model_save/model.ckpt-195.meta')
+          saver.restore(sess,tf.train.latest_checkpoint('gdrive/MyDrive/model_save/'))
+        current_file_train = 196
         num_files_train = 500
         while current_file_train <= num_files_train:
             print(f'#################### file {current_file_train} loaded ####################')
@@ -301,7 +301,7 @@ with tf.Session() as sess:
                     total_num_examples = 0
 
                     current_file_val = 1
-                    num_files_val = 180
+                    num_files_val = 176
                     while current_file_val <= num_files_val:
                         print(f'#################### file {current_file_val} loaded ####################')
                         with open('data/val/all_features_{}'.format(current_file_val),'rb') as file_:
