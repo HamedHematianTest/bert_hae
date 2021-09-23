@@ -211,7 +211,7 @@ if FLAGS.do_train:
 merged_summary_op = tf.summary.merge_all()
 
 RawResult = collections.namedtuple("RawResult", ["unique_id", "start_logits", "end_logits"])
-have_checkpoint = True
+have_checkpoint = False
 saver = tf.train.Saver()
 # Initializing the variables
 init = tf.global_variables_initializer()
@@ -236,8 +236,8 @@ with tf.Session() as sess:
         if have_checkpoint == True:
           saver = tf.train.import_meta_graph('gdrive/MyDrive/model_save/model.ckpt-195.meta')
           saver.restore(sess,tf.train.latest_checkpoint('gdrive/MyDrive/model_save/'))
-        current_file_train = 196
-        num_files_train = 500
+        current_file_train = 1
+        num_files_train = 498
         while current_file_train <= num_files_train:
             print(f'#################### file {current_file_train} loaded ####################')
             with open('data/train/all_features_{}'.format(current_file_train),'rb') as file_:
@@ -287,7 +287,8 @@ with tf.Session() as sess:
 
                 train_summary_writer.add_summary(train_summary, step)
                 train_summary_writer.flush()
-                print('training step: {}, total_loss: {}'.format(global_step, total_loss_res))
+                if global_step % 10 == 0:
+                    print('training step: {}, total_loss: {}'.format(global_step, total_loss_res))
                 
                 if global_step % every_step_val == 0:
                     print('################## prediction time ################## ')
@@ -398,8 +399,8 @@ with tf.Session() as sess:
                 all_results, all_selected_examples, all_selected_features, batch_features, batch_example_tracker, batch_variation_tracker, val_batches, val_features, val_example_tracker, val_variation_tracker, val_example_features_nums = None, None, None, None, None, None, None, None, None, None, None
                 global_step += 1
             
-            if current_file_train % every_file_save == 0:
-                saver_sess.save(sess, "/content/gdrive/MyDrive/model_save/model.ckpt", global_step=current_file_train)
+#             if current_file_train % every_file_save == 0:
+#                 saver_sess.save(sess, "/content/gdrive/MyDrive/model_save/model.ckpt", global_step=current_file_train)
 
 # In[5]:
 
