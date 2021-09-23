@@ -67,6 +67,10 @@ tf.gfile.MakeDirs(FLAGS.output_dir + '/summaries/train/')
 tf.gfile.MakeDirs(FLAGS.output_dir + '/summaries/val/')
 tf.gfile.MakeDirs(FLAGS.output_dir + '/summaries/rl/')
 
+# files to write results
+train_file = open('train_file.txt','w') 
+val_file = open('val_file.txt','w')
+
 tokenizer = tokenization.FullTokenizer(vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case)
 
 if FLAGS.do_train:
@@ -287,6 +291,7 @@ with tf.Session() as sess:
 
                 train_summary_writer.add_summary(train_summary, step)
                 train_summary_writer.flush()
+                train_file.write('step {} | loss {}\n'.format(global_step,total_loss_res))
                 if global_step % 10 == 0:
                     print('training step: {}, total_loss: {}'.format(global_step, total_loss_res))
                 
@@ -382,6 +387,7 @@ with tf.Session() as sess:
 
                     print('evaluation: {}, total_loss: {}, f1: {}, followup: {}, yesno: {}, heq: {}, dheq: {}\n'.format(
                         step, val_total_loss_value, val_f1, val_followup, val_yesno, val_heq, val_dheq))
+                    val_file.write('step {} | loss {}\n'.format(global_step,val_total_loss_value))
                     # with open(FLAGS.output_dir + 'step_result.txt', 'a') as fout:
                     #         fout.write('{},{},{},{},{},{}\n'.format(step, val_f1, val_heq, val_dheq, 
                     #                             FLAGS.history, FLAGS.output_dir))
@@ -401,6 +407,8 @@ with tf.Session() as sess:
             
 #             if current_file_train % every_file_save == 0:
 #                 saver_sess.save(sess, "/content/gdrive/MyDrive/model_save/model.ckpt", global_step=current_file_train)
+train_file.close()
+val_file.close()
 
 # In[5]:
 
