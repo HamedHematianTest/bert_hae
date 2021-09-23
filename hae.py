@@ -413,12 +413,12 @@ val_file_txt.close()
 # In[5]:
 
 
-best_f1 = max(f1_list)
-best_f1_idx = f1_list.index(best_f1)
-best_heq = heq_list[best_f1_idx]
-best_dheq = dheq_list[best_f1_idx]
-with open(FLAGS.output_dir + 'result.txt', 'w') as fout:
-    fout.write('{},{},{},{},{}\n'.format(best_f1, best_heq, best_dheq, FLAGS.history, FLAGS.output_dir))
+# best_f1 = max(f1_list)
+# best_f1_idx = f1_list.index(best_f1)
+# best_heq = heq_list[best_f1_idx]
+# best_dheq = dheq_list[best_f1_idx]
+# with open(FLAGS.output_dir + 'result.txt', 'w') as fout:
+#     fout.write('{},{},{},{},{}\n'.format(best_f1, best_heq, best_dheq, FLAGS.history, FLAGS.output_dir))
 
 
 # In[ ]:
