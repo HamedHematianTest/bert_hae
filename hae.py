@@ -222,7 +222,7 @@ init = tf.global_variables_initializer()
 saver_sess = tf.train.Saver(max_to_keep=1)
 if not have_checkpoint:
     tf.get_default_graph().finalize()
-every_step_val = 7000
+every_step_val = 5000
 every_file_save = 15
 
 with tf.Session() as sess:
@@ -387,7 +387,7 @@ with tf.Session() as sess:
 
                     print('evaluation: {}, total_loss: {}, f1: {}, followup: {}, yesno: {}, heq: {}, dheq: {}\n'.format(
                         step, val_total_loss_value, val_f1, val_followup, val_yesno, val_heq, val_dheq))
-                    val_file_txt.write('step {} | f1 {val_f1}\n'.format(global_step,val_total_loss_value))
+                    val_file_txt.write('step {} | f1 {}\n'.format(global_step,val_f1))
                     # with open(FLAGS.output_dir + 'step_result.txt', 'a') as fout:
                     #         fout.write('{},{},{},{},{},{}\n'.format(step, val_f1, val_heq, val_dheq, 
                     #                             FLAGS.history, FLAGS.output_dir))
