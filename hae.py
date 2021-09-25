@@ -40,6 +40,10 @@ from tqdm import tqdm
 
 from cqa_supports import *
 from cqa_flags import FLAGS
+
+1
+
+
 from cqa_model import *
 from cqa_gen_batches import *
 
@@ -222,7 +226,7 @@ init = tf.global_variables_initializer()
 saver_sess = tf.train.Saver(max_to_keep=1)
 if not have_checkpoint:
     tf.get_default_graph().finalize()
-every_step_val = 5000
+every_step_val = 3000
 every_file_save = 15
 
 with tf.Session() as sess:
@@ -243,7 +247,6 @@ with tf.Session() as sess:
         current_file_train = 1
         num_files_train = 498
         while current_file_train <= num_files_train:
-            print(f'#################### file {current_file_train} loaded ####################')
             with open('data/train/all_features_{}'.format(current_file_train),'rb') as file_:
                 train_features = pickle.load(file_)
             with open('data/train/example_tracker_{}'.format(current_file_train),'rb') as file_:
@@ -292,8 +295,8 @@ with tf.Session() as sess:
                 train_summary_writer.add_summary(train_summary, step)
                 train_summary_writer.flush()
                 train_file_txt.write('step {} | loss {}\n'.format(global_step,total_loss_res))
-                if global_step % 10 == 0:
-                    print('training step: {}, total_loss: {}'.format(global_step, total_loss_res))
+#                 if global_step % 10 == 0:
+#                     print('training step: {}, total_loss: {}'.format(global_step, total_loss_res))
                 
                 if global_step % every_step_val == 0:
                     print('################## prediction time ################## ')
@@ -309,7 +312,6 @@ with tf.Session() as sess:
                     current_file_val = 1
                     num_files_val = 176
                     while current_file_val <= num_files_val:
-                        print(f'#################### file {current_file_val} loaded ####################')
                         with open('data/val/all_features_{}'.format(current_file_val),'rb') as file_:
                             val_features = pickle.load(file_)
                         with open('data/val/example_tracker_{}'.format(current_file_val),'rb') as file_:
@@ -380,10 +382,10 @@ with tf.Session() as sess:
                     heq_list.append(val_heq)
                     dheq_list.append(val_dheq)
 
-                    val_summary.value.add(tag="followup", simple_value=val_followup)
-                    val_summary.value.add(tag="val_yesno", simple_value=val_yesno)
-                    val_summary.value.add(tag="val_heq", simple_value=val_heq)
-                    val_summary.value.add(tag="val_dheq", simple_value=val_dheq)
+#                     val_summary.value.add(tag="followup", simple_value=val_followup)
+#                     val_summary.value.add(tag="val_yesno", simple_value=val_yesno)
+#                     val_summary.value.add(tag="val_heq", simple_value=val_heq)
+#                     val_summary.value.add(tag="val_dheq", simple_value=val_dheq)
 
                     print('evaluation: {}, total_loss: {}, f1: {}, followup: {}, yesno: {}, heq: {}, dheq: {}\n'.format(
                         step, val_total_loss_value, val_f1, val_followup, val_yesno, val_heq, val_dheq))
