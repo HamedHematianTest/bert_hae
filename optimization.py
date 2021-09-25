@@ -32,8 +32,8 @@ def create_optimizer(loss, init_lr, num_train_steps, num_warmup_steps, use_tpu):
   learning_rate = tf.train.polynomial_decay(
       learning_rate,
       global_step,
-      num_train_steps,
-      end_learning_rate=0.0,
+      80000,
+      end_learning_rate=1e-6,
       power=1.0,
       cycle=False)
 
