@@ -83,6 +83,7 @@ def create_optimizer(loss, init_lr, num_train_steps, num_warmup_steps, use_tpu):
 
   tf.summary.scalar('gobal_step', global_step)
   tf.summary.scalar('learning_rate', learning_rate)
+  
   return train_op
 
 
@@ -151,6 +152,8 @@ class AdamWeightDecayOptimizer(tf.train.Optimizer):
       update_with_lr = self.learning_rate * update
 
       next_param = param - update_with_lr
+      print('learning rate {}'.format(self.learning_rate))
+      
 
       assignments.extend(
           [param.assign(next_param),
