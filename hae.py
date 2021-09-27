@@ -245,7 +245,7 @@ with tf.Session() as sess:
         if have_checkpoint == True:
           saver = tf.train.import_meta_graph('gdrive/MyDrive/model_save/model.ckpt-195.meta')
           saver.restore(sess,tf.train.latest_checkpoint('gdrive/MyDrive/model_save/'))
-        for epoch in epochs:
+        for epoch in range(epochs):
             print('################################## Epoch {} ##################################'.format(epoch))
             current_file_train = 1
             num_files_train = 498
