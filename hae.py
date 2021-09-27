@@ -115,7 +115,7 @@ if FLAGS.do_train:
         print('train features generated')
                 
     
-    num_train_steps = 60
+    num_train_steps = FLAGS.train_steps
     num_warmup_steps = int(num_train_steps * FLAGS.warmup_proportion)
 
 if FLAGS.do_predict:
