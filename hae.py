@@ -292,15 +292,14 @@ with tf.Session() as sess:
                                                    history_answer_marker: fd['history_answer_marker'], training: True})
                     except:
                         print('could not')
-    #                     print('features length: ', len(selected_example_features))
+    #                   print('features length: ', len(selected_example_features))
 
                     train_summary_writer.add_summary(train_summary, step)
                     train_summary_writer.flush()
                     train_file_txt.write('step {} | loss {}\n'.format(global_step,total_loss_res))
     #                 if global_step % 10 == 0:
     #                     print('training step: {}, total_loss: {}'.format(global_step, total_loss_res))
-
-                   if global_step % 3000 == 0:
+                    if global_step % 3000 == 0:
                         val_total_loss = []
                         all_results = []
                         all_selected_examples = []
