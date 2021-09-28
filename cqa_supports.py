@@ -12,8 +12,6 @@ import tokenization
 import six
 import tensorflow as tf
 from copy import deepcopy
-import pickle as pk
-from tqdm import tqdm
 
 from cqa_flags import FLAGS
 from cqa_supports import *
@@ -415,8 +413,7 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
                     history_answer_marker=marker,
                     metadata=metadata))
             unique_id += 1
-    
-    
+
     return features
 
 
@@ -830,7 +827,7 @@ def convert_examples_to_example_variations(examples, max_considered_history_turn
     return new_examples
 
 def convert_examples_to_variations_and_then_features(examples, tokenizer, max_seq_length, 
-                                doc_stride, max_query_length, max_considered_history_turns, is_training, dir_):
+                                doc_stride, max_query_length, max_considered_history_turns, is_training):
     # different from the "convert_examples_to_features" in cqa_supports.py, we return two masks with the feature (example/variaton trackers).
     # the first mask is the example index, and the second mask is the variation index. Wo do this to keep track of the features generated
     # by different examples and variations.
@@ -841,18 +838,7 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
     variation_tracker = []
     # matching_signals_dict = {}
     unique_id = 1000000000
-    num_files_train = 3
-    num_files_val = 3
-    features_num_train = 510320
-    features_num_val = 81518
-    each_file_features_train = int(features_num_train // num_files_train)
-    each_file_features_val = int(features_num_val // num_files_val)
-    if dir_ == 'train':
-        each_file_features = each_file_features_train
-    elif dir_ == 'val':
-        each_file_features = each_file_features_val
-    counter = 0
-    current_file = 1
+    
     
     # when training, we shuffle the data for more stable training.
     # we shuffle here so that we do not need to shuffle when generating batches
@@ -864,65 +850,30 @@ def convert_examples_to_variations_and_then_features(examples, tokenizer, max_se
     else:
         examples_shuffled = np.asarray(examples)
     
-    example_index_ = 0
-    for example_index, example in enumerate(tqdm(examples_shuffled)):
+    for example_index, example in enumerate(examples_shuffled):
         example_features_num = []
         variations = convert_examples_to_example_variations([example], max_considered_history_turns)
         for variation_index, variation in enumerate(variations):
             features = convert_examples_to_features([variation], tokenizer, max_seq_length, doc_stride, max_query_length, is_training)
             # matching_signals = extract_matching_signals(variation, glove, tfidf_vectorizer)
             # matching_signals_dict[(example_index, variation_index)] = matching_signals
+            
             # the example_index and unique_id in features are wrong due to the generation of example variations.
             # we fix them here.
             for i in range(len(features)):
-                features[i].example_index = example_index_
+                features[i].example_index = example_index
                 features[i].unique_id = unique_id
                 unique_id += 1
-                counter += 1
             all_features.extend(features)
             variation_tracker.extend([variation_index] * len(features))
-            example_tracker.extend([example_index_] * len(features))
+            example_tracker.extend([example_index] * len(features))
             example_features_num.append(len(features))
-            
         # every variation of the same example should generate the same amount of features
-        example_features_nums.append(example_features_num[0])
-        example_index_ += 1
-        if counter > each_file_features:
-            
-            counter = 0
-            with open('data/{}/all_features_{}'.format(dir_, current_file),'wb') as file_:
-                pk.dump(all_features, file_)
-            with open('data/{}/example_tracker_{}'.format(dir_, current_file),'wb') as file_:
-                pk.dump(example_tracker, file_)
-            with open('data/{}/variation_tracker_{}'.format(dir_, current_file),'wb') as file_:
-                pk.dump(variation_tracker, file_)
-            with open('data/{}/example_features_nums_{}'.format(dir_, current_file),'wb') as file_:
-                pk.dump(example_features_nums, file_)
-                
-            all_features = []
-            example_tracker = []
-            variation_tracker = []
-            example_features_nums = []
-            current_file += 1
-            example_index_ = 0
-            continue
-        
-        if example_index == len(examples_shuffled) - 1:
-            with open('data/{}/all_features_{}'.format(dir_, current_file),'wb') as file_:
-                pk.dump(all_features, file_)
-            with open('data/{}/example_tracker_{}'.format(dir_, current_file),'wb') as file_:
-                pk.dump(example_tracker, file_)
-            with open('data/{}/variation_tracker_{}'.format(dir_, current_file),'wb') as file_:
-                pk.dump(variation_tracker, file_)
-            with open('data/{}/example_features_nums_{}'.format(dir_, current_file),'wb') as file_:
-                pk.dump(example_features_nums, file_)
-                
-            all_features = []
-            example_tracker = []
-            variation_tracker = []
-            example_features_nums = []
-            all_features = []
-            example_index_ = 0
+        assert len(set(example_features_num)) == 1
+        example_features_nums.append(example_features_num[0]) 
+    assert len(all_features) == len(example_tracker)
+    assert len(all_features) == len(variation_tracker)
+    return all_features, example_tracker, variation_tracker, example_features_nums
 
 
 
