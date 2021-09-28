@@ -144,7 +144,7 @@ if FLAGS.do_predict:
             val_example_features_nums = pickle.load(handle)
     except:
         print('val feature cache does not exist, generating')
-        convert_examples_to_variations_and_then_features(
+        val_features, val_example_tracker, val_variation_tracker, val_example_features_nums = convert_examples_to_variations_and_then_features(
                                                    examples=val_examples, tokenizer=tokenizer, 
                                                    max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
                                                    max_query_length=FLAGS.max_query_length, 
