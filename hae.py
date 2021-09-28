@@ -104,13 +104,13 @@ if FLAGS.do_train:
             example_features_nums = pickle.load(handle)
     except:
         print('train feature cache does not exist, generating')
-        convert_examples_to_variations_and_then_features(
-                                        examples=train_examples, tokenizer=tokenizer, 
-                                        max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
-                                        max_query_length=FLAGS.max_query_length, 
-                                        max_considered_history_turns=FLAGS.max_considered_history_turns, 
-                                        is_training=True,
-                                        dir_='train')
+#         convert_examples_to_variations_and_then_features(
+#                                         examples=train_examples, tokenizer=tokenizer, 
+#                                         max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
+#                                         max_query_length=FLAGS.max_query_length, 
+#                                         max_considered_history_turns=FLAGS.max_considered_history_turns, 
+#                                         is_training=True,
+#                                         dir_='train')
         
         print('train features generated')
                 
@@ -149,8 +149,7 @@ if FLAGS.do_predict:
                                                    max_seq_length=FLAGS.max_seq_length, doc_stride=FLAGS.doc_stride, 
                                                    max_query_length=FLAGS.max_query_length, 
                                                    max_considered_history_turns=FLAGS.max_considered_history_turns, 
-                                                   is_training=False,
-                                                   dir_='val')
+                                                   is_training=False)
 
         print('val features generated')
     
@@ -274,7 +273,7 @@ with tf.Session() as sess:
     #                     # this means the learning rate has been decayed to 0
     #                     print('break')
     #                     break
-
+                    global_step += 1
                     batch_features, batch_example_tracker, batch_variation_tracker = batch
                     batch = None
 
@@ -301,8 +300,7 @@ with tf.Session() as sess:
     #                 if global_step % 10 == 0:
     #                     print('training step: {}, total_loss: {}'.format(global_step, total_loss_res))
 
-                    if global_step % every_step_val == 0:
-                        print('################## prediction time ################## ')
+                   if global_step % 3000 == 0:
                         val_total_loss = []
                         all_results = []
                         all_selected_examples = []
@@ -312,54 +310,41 @@ with tf.Session() as sess:
                         total_num_actions = 0
                         total_num_examples = 0
 
-                        current_file_val = 1
-                        num_files_val = 3
-                        while current_file_val <= num_files_val:
-                            with open('data/val/all_features_{}'.format(current_file_val),'rb') as file_:
-                                val_features = pickle.load(file_)
-                            with open('data/val/example_tracker_{}'.format(current_file_val),'rb') as file_:
-                                val_example_tracker = pickle.load(file_)
-                            with open('data/val/variation_tracker_{}'.format(current_file_val),'rb') as file_:
-                                val_variation_tracker = pickle.load(file_)
-                            with open('data/val/example_features_nums_{}'.format(current_file_val),'rb') as file_:
-                                val_example_features_nums = pickle.load(file_)
+                        val_batches = cqa_gen_example_aware_batches(val_features, val_example_tracker, val_variation_tracker, 
+                                                   val_example_features_nums, FLAGS.predict_batch_size, 1, shuffle=False)
 
-                            val_batches = cqa_gen_example_aware_batches(val_features, val_example_tracker, val_variation_tracker, 
-                               val_example_features_nums, FLAGS.predict_batch_size, 1, shuffle=False)
+                        for val_batch in val_batches:
 
-                            current_file_val += 1
+                            batch_results = []
+                            batch_features, batch_example_tracker, batch_variation_tracker = val_batch
 
-                            for val_batch in val_batches:
-                                batch_results = []
-                                batch_features, batch_example_tracker, batch_variation_tracker = val_batch
-
-                                selected_example_features, relative_selected_pos = get_selected_example_features_without_actions(
-                                                                batch_features, batch_example_tracker, batch_variation_tracker)
+                            selected_example_features, relative_selected_pos = get_selected_example_features_without_actions(
+                                                            batch_features, batch_example_tracker, batch_variation_tracker)
 
 
-                                try:
-                                    all_selected_features.extend(selected_example_features)
+                            try:
+                                all_selected_features.extend(selected_example_features)
 
-                                    fd = convert_features_to_feed_dict(selected_example_features) # feed_dict
-                                    start_logits_res, end_logits_res, batch_total_loss = sess.run([start_logits, end_logits, total_loss], 
-                                                feed_dict={unique_ids: fd['unique_ids'], input_ids: fd['input_ids'], 
-                                                input_mask: fd['input_mask'], segment_ids: fd['segment_ids'], 
-                                                start_positions: fd['start_positions'], end_positions: fd['end_positions'], 
-                                                history_answer_marker: fd['history_answer_marker'], training: False})
+                                fd = convert_features_to_feed_dict(selected_example_features) # feed_dict
+                                start_logits_res, end_logits_res, batch_total_loss = sess.run([start_logits, end_logits, total_loss], 
+                                            feed_dict={unique_ids: fd['unique_ids'], input_ids: fd['input_ids'], 
+                                            input_mask: fd['input_mask'], segment_ids: fd['segment_ids'], 
+                                            start_positions: fd['start_positions'], end_positions: fd['end_positions'], 
+                                            history_answer_marker: fd['history_answer_marker'], training: False})
 
-                                    val_total_loss.append(batch_total_loss)
+                                val_total_loss.append(batch_total_loss)
 
-                                    for each_unique_id, each_start_logits, each_end_logits in zip(fd['unique_ids'], start_logits_res, 
-                                                                                                  end_logits_res):  
-                                        each_unique_id = int(each_unique_id)
-                                        each_start_logits = [float(x) for x in each_start_logits.flat]
-                                        each_end_logits = [float(x) for x in each_end_logits.flat]
-                                        batch_results.append(RawResult(unique_id=each_unique_id, start_logits=each_start_logits, 
-                                                                       end_logits=each_end_logits))
+                                for each_unique_id, each_start_logits, each_end_logits in zip(fd['unique_ids'], start_logits_res, 
+                                                                                              end_logits_res):  
+                                    each_unique_id = int(each_unique_id)
+                                    each_start_logits = [float(x) for x in each_start_logits.flat]
+                                    each_end_logits = [float(x) for x in each_end_logits.flat]
+                                    batch_results.append(RawResult(unique_id=each_unique_id, start_logits=each_start_logits, 
+                                                                   end_logits=each_end_logits))
 
-                                    all_results.extend(batch_results)
-                                except:
-                                    print('batch dropped because too large!')
+                                all_results.extend(batch_results)
+                            except:
+                                print('batch dropped because too large!')
 
                         output_prediction_file = os.path.join(FLAGS.output_dir, "predictions_{}.json".format(step))
                         output_nbest_file = os.path.join(FLAGS.output_dir, "nbest_predictions_{}.json".format(step))
@@ -385,49 +370,37 @@ with tf.Session() as sess:
                         heq_list.append(val_heq)
                         dheq_list.append(val_dheq)
 
-    #                     val_summary.value.add(tag="followup", simple_value=val_followup)
-    #                     val_summary.value.add(tag="val_yesno", simple_value=val_yesno)
-    #                     val_summary.value.add(tag="val_heq", simple_value=val_heq)
-    #                     val_summary.value.add(tag="val_dheq", simple_value=val_dheq)
+                        val_summary.value.add(tag="followup", simple_value=val_followup)
+                        val_summary.value.add(tag="val_yesno", simple_value=val_yesno)
+                        val_summary.value.add(tag="val_heq", simple_value=val_heq)
+                        val_summary.value.add(tag="val_dheq", simple_value=val_dheq)
 
                         print('evaluation: {}, total_loss: {}, f1: {}, followup: {}, yesno: {}, heq: {}, dheq: {}\n'.format(
                             step, val_total_loss_value, val_f1, val_followup, val_yesno, val_heq, val_dheq))
-                        val_file_txt.write('step {} | f1 {}\n'.format(global_step,val_f1))
-                        # with open(FLAGS.output_dir + 'step_result.txt', 'a') as fout:
-                        #         fout.write('{},{},{},{},{},{}\n'.format(step, val_f1, val_heq, val_dheq, 
-                        #                             FLAGS.history, FLAGS.output_dir))
+                        with open(FLAGS.output_dir + 'step_result.txt', 'a') as fout:
+                                fout.write('{},{},{},{},{},{}\n'.format(step, val_f1, val_heq, val_dheq, 
+                                                    FLAGS.history, FLAGS.output_dir))
 
-                        # val_summary.value.add(tag="total_loss", simple_value=val_total_loss_value)
-                        # val_summary.value.add(tag="f1", simple_value=val_f1)
-                        # f1_list.append(val_f1)
+                        val_summary.value.add(tag="total_loss", simple_value=val_total_loss_value)
+                        val_summary.value.add(tag="f1", simple_value=val_f1)
+                        f1_list.append(val_f1)
 
-                        # val_summary_writer.add_summary(val_summary, step)
-                        # val_summary_writer.flush()
+                        val_summary_writer.add_summary(val_summary, step)
+                        val_summary_writer.flush()
 
-                        # save_path = saver.save(sess, '{}/model_{}.ckpt'.format(FLAGS.output_dir, step))
-                        # print('Model saved in path', save_path)
+                        save_path = saver.save(sess, '{}/model_{}.ckpt'.format(FLAGS.output_dir, step))
+                        print('Model saved in path', save_path)
+                        
 
-                    all_results, all_selected_examples, all_selected_features, batch_features, batch_example_tracker, batch_variation_tracker, val_batches, val_features, val_example_tracker, val_variation_tracker, val_example_features_nums = None, None, None, None, None, None, None, None, None, None, None
-                    global_step += 1
+                
 
-    #             if current_file_train % every_file_save == 0:
-    #                 saver_sess.save(sess, "/content/gdrive/MyDrive/model_save/model.ckpt", global_step=current_file_train)
-train_file_txt.close()
-val_file_txt.close()
 
 # In[5]:
 
 
-# best_f1 = max(f1_list)
-# best_f1_idx = f1_list.index(best_f1)
-# best_heq = heq_list[best_f1_idx]
-# best_dheq = dheq_list[best_f1_idx]
-# with open(FLAGS.output_dir + 'result.txt', 'w') as fout:
-#     fout.write('{},{},{},{},{}\n'.format(best_f1, best_heq, best_dheq, FLAGS.history, FLAGS.output_dir))
-
-
-# In[ ]:
-
-
-
-
+best_f1 = max(f1_list)
+best_f1_idx = f1_list.index(best_f1)
+best_heq = heq_list[best_f1_idx]
+best_dheq = dheq_list[best_f1_idx]
+with open(FLAGS.output_dir + 'result.txt', 'w') as fout:
+    fout.write('{},{},{},{},{}\n'.format(best_f1, best_heq, best_dheq, FLAGS.history, FLAGS.output_dir))
