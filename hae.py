@@ -376,6 +376,7 @@ with tf.Session() as sess:
 
                         print('evaluation: {}, total_loss: {}, f1: {}, followup: {}, yesno: {}, heq: {}, dheq: {}\n'.format(
                             step, val_total_loss_value, val_f1, val_followup, val_yesno, val_heq, val_dheq))
+                        val_file_txt.write('step {} | f1 {} | heq {} | dheq {}'.format(global_step,val_f1,val_heq,val_dheq))
                         with open(FLAGS.output_dir + 'step_result.txt', 'a') as fout:
                                 fout.write('{},{},{},{},{},{}\n'.format(step, val_f1, val_heq, val_dheq, 
                                                     FLAGS.history, FLAGS.output_dir))
