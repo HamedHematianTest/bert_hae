@@ -71,9 +71,7 @@ tf.gfile.MakeDirs(FLAGS.output_dir + '/summaries/train/')
 tf.gfile.MakeDirs(FLAGS.output_dir + '/summaries/val/')
 tf.gfile.MakeDirs(FLAGS.output_dir + '/summaries/rl/')
 
-# files to write results
-train_file_txt = open('train_file.txt','w') 
-val_file_txt = open('val_file.txt','w')
+
 
 tokenizer = tokenization.FullTokenizer(vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case)
 
@@ -219,7 +217,7 @@ merged_summary_op = tf.summary.merge_all()
 
 RawResult = collections.namedtuple("RawResult", ["unique_id", "start_logits", "end_logits"])
 have_checkpoint = False
-saver = tf.train.Saver()
+saver = tf.train.Saver(max_to_keep=1)
 # Initializing the variables
 init = tf.global_variables_initializer()
 saver_sess = tf.train.Saver(max_to_keep=1)
@@ -227,7 +225,8 @@ if not have_checkpoint:
     tf.get_default_graph().finalize()
 every_step_val = 3000
 every_file_save = 15
-epochs = 4
+epochs = 2
+best_f1 = 0
 
 with tf.Session() as sess:
     if not have_checkpoint:
@@ -376,10 +375,13 @@ with tf.Session() as sess:
 
                         print('evaluation: {}, total_loss: {}, f1: {}, followup: {}, yesno: {}, heq: {}, dheq: {}\n'.format(
                             step, val_total_loss_value, val_f1, val_followup, val_yesno, val_heq, val_dheq))
-                        val_file_txt.write('step {} | f1 {} | heq {} | dheq {}'.format(global_step,val_f1,val_heq,val_dheq))
+                        with open('val_file.txt','a'):
+                            val_file_txt.write('step {} | f1 {} | heq {} | dheq {}\n'.format(global_step,val_f1,val_heq,val_dheq))
                         with open(FLAGS.output_dir + 'step_result.txt', 'a') as fout:
                                 fout.write('{},{},{},{},{},{}\n'.format(step, val_f1, val_heq, val_dheq, 
                                                     FLAGS.history, FLAGS.output_dir))
+                                
+                        
 
                         val_summary.value.add(tag="total_loss", simple_value=val_total_loss_value)
                         val_summary.value.add(tag="f1", simple_value=val_f1)
@@ -387,9 +389,11 @@ with tf.Session() as sess:
 
                         val_summary_writer.add_summary(val_summary, step)
                         val_summary_writer.flush()
-
-                        save_path = saver.save(sess, '{}/model_{}.ckpt'.format(FLAGS.output_dir, step))
-                        print('Model saved in path', save_path)
+                        
+                        if val_f1 > best_f1:
+                            best_f1 = val_f1
+                            save_path = saver.save(sess, '{}/model_{}.ckpt'.format(FLAGS.output_dir, step))
+                            print('Model saved in path', save_path)
                         
 
                 
