@@ -269,10 +269,10 @@ with tf.Session() as sess:
                 example_features_nums = None
                 # Training cycle
                 for step, batch in enumerate(train_batches):
-                    if global_step > num_train_steps:
-                        # this means the learning rate has been decayed to 0
-                        print('break')
-                        break
+#                     if global_step > num_train_steps:
+#                         # this means the learning rate has been decayed to 0
+#                         print('break')
+#                         break
                     global_step += 1
                     batch_features, batch_example_tracker, batch_variation_tracker = batch
                     batch = None
