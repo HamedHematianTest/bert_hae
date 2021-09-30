@@ -71,6 +71,7 @@ tf.gfile.MakeDirs(FLAGS.output_dir + '/summaries/train/')
 tf.gfile.MakeDirs(FLAGS.output_dir + '/summaries/val/')
 tf.gfile.MakeDirs(FLAGS.output_dir + '/summaries/rl/')
 
+train_file_txt = open('train_file.txt','w')
 
 
 tokenizer = tokenization.FullTokenizer(vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case)
@@ -268,10 +269,10 @@ with tf.Session() as sess:
                 example_features_nums = None
                 # Training cycle
                 for step, batch in enumerate(train_batches):
-    #                 if global_step > num_train_steps:
-    #                     # this means the learning rate has been decayed to 0
-    #                     print('break')
-    #                     break
+                    if global_step > num_train_steps:
+                        # this means the learning rate has been decayed to 0
+                        print('break')
+                        break
                     global_step += 1
                     batch_features, batch_example_tracker, batch_variation_tracker = batch
                     batch = None
@@ -295,6 +296,7 @@ with tf.Session() as sess:
 
                     train_summary_writer.add_summary(train_summary, step)
                     train_summary_writer.flush()
+                        
                     train_file_txt.write('step {} | loss {}\n'.format(global_step,total_loss_res))
     #                 if global_step % 10 == 0:
     #                     print('training step: {}, total_loss: {}'.format(global_step, total_loss_res))
@@ -375,7 +377,7 @@ with tf.Session() as sess:
 
                         print('evaluation: {}, total_loss: {}, f1: {}, followup: {}, yesno: {}, heq: {}, dheq: {}\n'.format(
                             step, val_total_loss_value, val_f1, val_followup, val_yesno, val_heq, val_dheq))
-                        with open('val_file.txt','a'):
+                        with open('val_file.txt','a') as val_file_txt:
                             val_file_txt.write('step {} | f1 {} | heq {} | dheq {}\n'.format(global_step,val_f1,val_heq,val_dheq))
                         with open(FLAGS.output_dir + 'step_result.txt', 'a') as fout:
                                 fout.write('{},{},{},{},{},{}\n'.format(step, val_f1, val_heq, val_dheq, 
@@ -400,7 +402,7 @@ with tf.Session() as sess:
 
 
 # In[5]:
-
+train_file_txt.close()
 
 best_f1 = max(f1_list)
 best_f1_idx = f1_list.index(best_f1)
